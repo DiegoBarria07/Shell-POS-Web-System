@@ -7,42 +7,38 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// 1. Escuchar el evento de instalación si el navegador lo permite
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e;
-    
-    const installBtn = document.getElementById('btn-install-app');
-    if (installBtn && !window.matchMedia('(display-mode: standalone)').matches && !window.navigator.standalone) {
-        installBtn.classList.remove('hidden');
-    }
+    deferredPrompt = e; // Guardamos el evento para usarlo en el botón
 });
 
-window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    const installBtn = document.getElementById('btn-install-app');
-    if (installBtn) installBtn.classList.add('hidden');
-});
-
-function installApp() {
-    if (!deferredPrompt) {
-        alert("La aplicación ya está instalada o tu navegador no lo permite.");
-        return;
-    }
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-            document.getElementById('btn-install-app').classList.add('hidden');
-        }
-        deferredPrompt = null;
-    });
-}
-
+// 2. Ocultar el botón SOLAMENTE si estamos dentro de la App instalada (Standalone)
 document.addEventListener('DOMContentLoaded', () => {
     const installBtn = document.getElementById('btn-install-app');
+    
+    // Detectar si es la PWA instalada
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-        if (installBtn) installBtn.classList.add('hidden');
+        if (installBtn) installBtn.style.display = 'none';
     }
 });
+
+// 3. Función al hacer clic en el botón
+function installApp() {
+    // Si el navegador nos dio el evento automático, lo usamos
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                document.getElementById('btn-install-app').style.display = 'none';
+            }
+            deferredPrompt = null;
+        });
+    } else {
+        // PLAN B: Si el navegador bloqueó el popup automático (ej. Brave o Chrome estricto)
+        alert("Tu navegador bloquea las descargas automáticas o la app ya está instalada en tu sistema.\n\nPara instalar manualmente: Busca el ícono de una pantalla con una flechita hacia abajo en la barra de direcciones de tu navegador (arriba a la derecha) o en el menú de opciones.");
+    }
+}
 
 // --- BASE DE DATOS Y NAVEGACIÓN ---
 let db = JSON.parse(localStorage.getItem('shellData')) || { workers: [], deposits: {}, history: [] };
