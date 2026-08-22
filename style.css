@@ -35,7 +35,7 @@ body::before {
 }
 
 [data-theme="dark"] body::before {
-    filter: grayscale(80%); /* Tonifica la marca de agua oscura sin destruirla */
+    filter: grayscale(80%);
 }
 
 .topbar { background-color: var(--bg-card); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-bottom: 3px solid var(--shell-yellow); }

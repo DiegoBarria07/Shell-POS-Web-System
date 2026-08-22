@@ -1,10 +1,9 @@
-const CACHE_NAME = 'shell-pos-v3';
+const CACHE_NAME = 'shell-pos-v4';
 const urlsToCache = [
     './',
     './index.html',
     './style.css',
     './script.js',
-    './logo.png',
     './manifest.json'
 ];
 

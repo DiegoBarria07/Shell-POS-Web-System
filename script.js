@@ -12,7 +12,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
 });
 
-// Ocultar botón si ya se está usando la app instalada
 document.addEventListener('DOMContentLoaded', () => {
     const installBtn = document.getElementById('btn-install-app');
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
