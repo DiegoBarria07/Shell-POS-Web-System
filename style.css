@@ -1,12 +1,9 @@
 :root {
-    /* MODO CLARO (Suavizado, agradable a la vista y menos brillante) */
-    --bg-main: #e8eaed; /* Gris más profundo y relajante */
-    --bg-card: #f6f8fa; /* Blanco roto sutil, no quema los ojos */
-    --text-main: #2c3238; /* Gris oscuro, menos agresivo que el negro puro */
+    --bg-main: #e8eaed; 
+    --bg-card: #f6f8fa; 
+    --text-main: #2c3238; 
     --text-muted: #687078;
     --border: #cfd4da;
-    
-    /* Colores Corporativos Shell */
     --shell-red: #da291c;
     --shell-yellow: #fbc02d;
     --btn-hover-red: #b92015;
@@ -14,7 +11,6 @@
 }
 
 [data-theme="dark"] {
-    /* MODO OSCURO (Mantenemos la elegancia) */
     --bg-main: #121212;
     --bg-card: #1e1e1e;
     --text-main: #f0f2f5;
@@ -24,241 +20,101 @@
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0; padding: 0; box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    min-height: 100vh;
-    position: relative;
-    z-index: 1;
-}
+body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; position: relative; z-index: 1; }
 
-/* MARCA DE AGUA SUTIL (FONDO) */
 body::before {
-    content: "";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    height: 60%;
-    background-image: url('https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: var(--watermark-opacity);
-    z-index: -1;
-    pointer-events: none;
+    content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 60%; height: 60%; background-image: url('https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png');
+    background-repeat: no-repeat; background-position: center; background-size: contain;
+    opacity: var(--watermark-opacity); z-index: -1; pointer-events: none;
 }
 
-[data-theme="dark"] body::before {
-    filter: grayscale(100%) brightness(200%);
-}
+[data-theme="dark"] body::before { filter: grayscale(100%) brightness(200%); }
 
-/* --- BARRA SUPERIOR --- */
-.topbar {
-    background-color: var(--bg-card);
-    padding: 10px 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    border-bottom: 3px solid var(--shell-yellow);
-}
+.topbar { background-color: var(--bg-card); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-bottom: 3px solid var(--shell-yellow); }
+.logo-img { height: 40px; width: auto; }
+.btn-icon { background: none; border: none; color: var(--text-main); cursor: pointer; display: flex; align-items: center; }
 
-.logo-img {
-    height: 40px;
-    width: auto;
-}
+#app-container { width: 100%; max-width: 800px; margin: 40px auto; padding: 0 15px; }
 
-.btn-icon {
-    background: none;
-    border: none;
-    color: var(--text-main);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
+.view { display: none; background-color: var(--bg-card); padding: 30px 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.03); animation: fadeIn 0.3s ease-in-out; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- CONTENEDOR PRINCIPAL RESPONSIVO --- */
-#app-container {
-    width: 100%;
-    max-width: 800px; /* Se ve increíble en 32" sin estirarse, y en celular se ajusta solo */
-    margin: 40px auto;
-    padding: 0 15px;
-}
+h2 { margin-bottom: 25px; color: var(--text-main); border-left: 4px solid var(--shell-red); padding-left: 12px; font-size: 1.5rem; }
 
-.view {
-    display: none;
-    background-color: var(--bg-card);
-    padding: 30px 25px; /* Más "aire" general adentro de las tarjetas */
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.03);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.view.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-h2 {
-    margin-bottom: 25px;
-    color: var(--text-main);
-    border-left: 4px solid var(--shell-red);
-    padding-left: 12px;
-    font-size: 1.5rem;
-}
-
-/* --- FORMULARIOS Y BOTONES --- */
-.menu-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-button {
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    padding: 14px 20px; /* Botones más cómodos para el dedo en celular */
-    font-size: 1rem;
-}
-
-.btn-main {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    border: 1px solid var(--border);
-    transition: all 0.2s;
-}
+.menu-grid { display: flex; flex-direction: column; gap: 15px; }
+button { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; padding: 14px 20px; font-size: 1rem; }
+.btn-main { background-color: var(--bg-main); color: var(--text-main); border: 1px solid var(--border); }
 .btn-main:hover { border-color: var(--shell-yellow); background-color: var(--bg-card); }
 .btn-admin { border-color: var(--shell-red); }
 
-.form-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
+.form-group { margin-bottom: 15px; display: flex; flex-direction: column; width: 100%; }
+label { margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+input, select { width: 100%; padding: 12px 14px; background-color: var(--bg-main); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
+#view-login p { margin-bottom: 15px; font-size: 0.95rem; color: var(--text-muted); }
+#view-login input { margin-bottom: 35px; }
 
-label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-main);
-}
-
-input, select {
-    width: 100%;
-    padding: 12px 14px; /* Más aire dentro de las cajas de texto */
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-input:focus, select:focus {
-    outline: none;
-    border-color: var(--shell-yellow);
-}
-
-/* --- ESPACIADO ESPECÍFICO DEL LOGIN --- */
-#view-login p {
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-    color: var(--text-muted);
-}
-
-#view-login input {
-    margin-bottom: 35px; /* Aquí le damos todo el aire a la contraseña */
-}
-
-/* --- CUADRICULA DE BILLETES RESPONSIVA --- */
-.denominations-grid {
-    display: grid;
-    /* Magia responsiva: si la pantalla es chica, hace 2 columnas. Si es grande, hace más, sin romper nada */
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
+.denominations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 30px; }
 .den-item input { text-align: center; font-weight: 600; }
-
-.total-text {
-    text-align: right;
-    font-size: 1.4rem;
-    margin-bottom: 25px;
-    color: var(--text-main);
-}
+.total-text { text-align: right; font-size: 1.4rem; margin-bottom: 25px; color: var(--text-main); }
 #dep-total { color: var(--shell-red); }
 
-/* --- FILAS DE BOTONES (Responsivo) --- */
-.btn-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap; /* En celulares, si no caben de lado a lado, se apilan elegantemente */
-}
-
-.btn-row button {
-    flex: 1; /* Todos los botones toman el mismo ancho */
-    min-width: 130px; 
-}
-
+.btn-row { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+.btn-row button { flex: 1; min-width: 130px; }
 .btn-save { background-color: var(--shell-red); color: white; }
 .btn-save:hover { background-color: var(--btn-hover-red); }
 .btn-back { background-color: var(--border); color: var(--text-main); }
-.btn-back:hover { filter: brightness(0.95); }
 
-/* --- HISTORIAL Y RESULTADOS --- */
-.filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.history-card {
-    background: var(--bg-main);
-    padding: 15px;
-    margin-bottom: 12px;
-    border-radius: 6px;
-    border-left: 4px solid var(--border);
-    font-size: 0.95rem;
-}
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.history-card { background: var(--bg-main); padding: 15px; margin-bottom: 12px; border-radius: 6px; border-left: 4px solid var(--border); font-size: 0.95rem; }
 .hist-perfect { border-color: #4CAF50; }
 .hist-falta { border-color: var(--shell-red); }
 .hist-sobra { border-color: #2196F3; }
-
 .hidden { display: none !important; }
+.info-box { background: var(--bg-main); padding: 12px 15px; border-left: 4px solid var(--shell-yellow); margin-bottom: 20px; font-weight: 600; font-size: 0.95rem; border-radius: 0 6px 6px 0; }
+.resultado-box { margin-top: 20px; padding: 20px; border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 600; }
 
-.info-box { 
-    background: var(--bg-main); 
-    padding: 12px 15px; 
-    border-left: 4px solid var(--shell-yellow); 
-    margin-bottom: 20px; 
-    font-weight: 600; 
-    font-size: 0.95rem; 
-    border-radius: 0 6px 6px 0;
+/* ---------------------------------------------------- */
+/* DISEÑO DEL RECIBO (SE VE EN PANTALLA Y EN IMPRESIÓN) */
+/* ---------------------------------------------------- */
+.receipt-paper {
+    background-color: white !important; /* Siempre blanco para que parezca papel */
+    color: black !important;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 25px;
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
+.ticket-container { width: 100%; font-size: 14px; }
+.ticket-header { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+.ticket-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.ticket-divider { border-top: 1px dashed black; margin: 10px 0; }
+.ticket-firma { border-top: 1px solid black; width: 80%; margin: 50px auto 10px auto; text-align: center; }
 
-.resultado-box { 
-    margin-top: 20px; 
-    padding: 20px; 
-    border-radius: 6px; 
-    text-align: center; 
-    font-size: 1.15rem; 
-    font-weight: 600;
+#print-area { display: none; }
+
+/* REGLAS EXCLUSIVAS PARA LA IMPRESORA REAL */
+@media print {
+    body * { visibility: hidden; }
+    body { background-color: white !important; color: black !important; }
+    body::before { display: none; } 
+    
+    #print-area, #print-area * { visibility: visible; }
+    #print-area {
+        position: absolute; left: 0; top: 0; width: 100%;
+        display: flex; justify-content: center;
+    }
+    
+    /* Al imprimir de verdad, le quitamos la sombra de "papel digital" para ahorrar tinta */
+    .receipt-paper { box-shadow: none; border: none; padding: 0; margin: 0; }
 }

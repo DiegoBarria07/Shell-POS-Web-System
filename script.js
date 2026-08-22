@@ -1,9 +1,11 @@
-let db = JSON.parse(localStorage.getItem('shellData')) || {
-    workers: [], 
-    deposits: {}, 
-    history: []   
-};
+// --- REGISTRO DE LA PWA (Para que se pueda instalar como App) ---
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(() => {
+        console.log("Service Worker Registrado. ¡App lista para instalar!");
+    });
+}
 
+let db = JSON.parse(localStorage.getItem('shellData')) || { workers: [], deposits: {}, history: [] };
 function saveDB() { localStorage.setItem('shellData', JSON.stringify(db)); }
 
 // --- NAVEGACIÓN ---
@@ -14,14 +16,11 @@ function navTo(viewId) {
     if(viewId === 'view-deposit' || viewId === 'view-cuadratura' || viewId === 'view-admin-delete') {
         updateWorkerSelects();
         if(db.workers.length === 0 && viewId !== 'view-admin-delete') {
-            alert("No hay trabajadores creados. Vaya a 'Administrar' para crear uno.");
+            alert("No hay trabajadores creados. Vaya a 'Administrar'.");
             navTo('view-menu');
         }
     }
-    if(viewId === 'view-cuadratura') {
-        checkCurrentDeposit();
-        calculateCuadratura(); // Reactividad inicial
-    }
+    if(viewId === 'view-cuadratura') { checkCurrentDeposit(); calculateCuadratura(); }
     if(viewId === 'view-login') {
         const passInput = document.getElementById('admin-pass');
         passInput.value = '';
@@ -50,102 +49,88 @@ function updateThemeIcons(theme) {
     iconMoon.style.display = theme === 'dark' ? 'none' : 'block';
 }
 
-// --- NAVEGACIÓN POR TECLADO Y ENTER ---
-document.getElementById('admin-pass').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') checkAdmin();
-});
-
-// Flechas en los inputs de depósito
+// --- TECLADO ---
+document.getElementById('admin-pass').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkAdmin(); });
 const depInputs = document.querySelectorAll('#deposit-grid input');
 depInputs.forEach((input, index) => {
     input.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            if (index < depInputs.length - 1) depInputs[index + 1].focus();
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            if (index > 0) depInputs[index - 1].focus();
-        }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (index < depInputs.length - 1) depInputs[index + 1].focus(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (index > 0) depInputs[index - 1].focus(); }
     });
 });
 
-// --- LÓGICA DE TRABAJADORES ---
 function updateWorkerSelects() {
     const selects = document.querySelectorAll('.worker-select');
     const sortedWorkers = [...db.workers].sort((a, b) => a.localeCompare(b));
-    
     selects.forEach(select => {
-        const isFilter = select.id === 'filter-worker';
-        select.innerHTML = isFilter ? '<option value="ALL">Todos</option>' : '';
+        select.innerHTML = select.id === 'filter-worker' ? '<option value="ALL">Todos</option>' : '';
         sortedWorkers.forEach(w => select.innerHTML += `<option value="${w}">${w}</option>`);
     });
 }
+function getVal(id) { let val = document.getElementById(id).value; return val === "" ? 0 : parseInt(val); }
 
-function getVal(id) {
-    let val = document.getElementById(id).value;
-    return val === "" ? 0 : parseInt(val);
-}
+// --- LÓGICA DE TRANSACCIONES PENDIENTES Y SEGURIDAD ---
+let pendingTransaction = null;
+let viewBeforePrint = '';
 
-// --- DEPÓSITOS ---
+// Depósitos
 function calcDeposit() {
-    let total = 
-        getVal('b20000') * 20000 + getVal('b10000') * 10000 +
-        getVal('b5000') * 5000 + getVal('b2000') * 2000 +
-        getVal('b1000') * 1000 + getVal('b500') * 500 +
-        getVal('b100') * 100 + getVal('b50') * 50 + getVal('b10') * 10;
-    
+    let total = getVal('b20000')*20000 + getVal('b10000')*10000 + getVal('b5000')*5000 + getVal('b2000')*2000 + getVal('b1000')*1000 + getVal('b500')*500 + getVal('b100')*100 + getVal('b50')*50 + getVal('b10')*10;
     document.getElementById('dep-total').innerText = total.toLocaleString('es-CL');
     return total;
 }
 
-function saveDeposit() {
+function previewDeposit() {
     const worker = document.getElementById('dep-worker').value;
     const amount = calcDeposit();
-    if(!worker || amount === 0) return;
+    if(!worker || amount === 0) {
+        alert("Ingrese un monto válido para depositar.");
+        return;
+    }
 
-    db.deposits[worker] = (db.deposits[worker] || 0) + amount;
-    saveDB();
+    const fechaStr = new Date().toLocaleString('es-CL');
+    const ticketHTML = `
+        <div class="ticket-container">
+            <div class="ticket-header">SHELL POS<br>COMPROBANTE DEPÓSITO</div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-row"><span>Fecha:</span><span>${fechaStr}</span></div>
+            <div class="ticket-row"><span>Trabajador:</span><span>${worker}</span></div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-row" style="font-weight:bold; font-size: 16px;"><span>TOTAL INGRESADO:</span><span>$${amount.toLocaleString('es-CL')}</span></div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-firma">Firma Trabajador</div>
+        </div>
+    `;
+
+    pendingTransaction = { type: 'deposit', worker: worker, amount: amount, html: ticketHTML };
+    viewBeforePrint = 'view-deposit';
     
-    document.querySelectorAll('.den-item input').forEach(inp => inp.value = '');
-    document.getElementById('dep-total').innerText = '0';
-    navTo('view-menu');
+    document.getElementById('receipt-preview-container').innerHTML = ticketHTML;
+    navTo('view-print-preview');
 }
 
-// --- CUADRATURA (Reactiva) ---
+// Cuadraturas
 let tempCuadratura = null;
 
 function checkCurrentDeposit() {
     const worker = document.getElementById('cuad-worker').value;
-    const dep = db.deposits[worker] || 0;
-    document.getElementById('cuad-deposito-actual').innerText = dep.toLocaleString('es-CL');
+    document.getElementById('cuad-deposito-actual').innerText = (db.deposits[worker] || 0).toLocaleString('es-CL');
     calculateCuadratura();
 }
 
 function calculateCuadratura() {
     const worker = document.getElementById('cuad-worker').value;
     if(!worker) return;
-
-    const currentDeposit = db.deposits[worker] || 0;
     const ventas = getVal('c-ventas');
-    const totalIngresado = currentDeposit + getVal('c-transbank') + getVal('c-shellcard') + getVal('c-app') + getVal('c-transf');
+    const totalIngresado = (db.deposits[worker] || 0) + getVal('c-transbank') + getVal('c-shellcard') + getVal('c-app') + getVal('c-transf');
     const diferencia = totalIngresado - ventas;
 
     const resBox = document.getElementById('cuad-resultado');
     const resText = document.getElementById('res-texto');
     const btnAceptar = document.getElementById('btn-aceptar-cuad');
-    
     resBox.classList.remove('hidden');
 
-    const fechaActual = new Date().toLocaleDateString('es-CL'); // 21-08-2026
-
-    tempCuadratura = {
-        date: fechaActual,
-        worker: worker,
-        turno: document.getElementById('cuad-turno').value,
-        ventas: ventas,
-        ingresado: totalIngresado,
-        diferencia: diferencia
-    };
+    tempCuadratura = { date: new Date().toLocaleDateString('es-CL'), worker: worker, turno: document.getElementById('cuad-turno').value, ventas: ventas, ingresado: totalIngresado, diferencia: diferencia };
 
     resBox.style.backgroundColor = "var(--bg-card)";
     if (ventas === 0 && totalIngresado === 0) {
@@ -154,141 +139,138 @@ function calculateCuadratura() {
         btnAceptar.classList.add('hidden');
     } else {
         btnAceptar.classList.remove('hidden');
-        if(diferencia > 0) {
-            resText.innerHTML = `SOBRA DINERO: +$${diferencia.toLocaleString('es-CL')}`;
-            resBox.style.border = "3px solid #2196F3";
-            resText.style.color = "#2196F3";
-        } else if (diferencia < 0) {
-            resText.innerHTML = `FALTA DINERO: $${diferencia.toLocaleString('es-CL')}`;
-            resBox.style.border = "3px solid var(--shell-red)";
-            resText.style.color = "var(--shell-red)";
-        } else {
-            resText.innerHTML = `CUADRADO PERFECTAMENTE ($0)`;
-            resBox.style.border = "3px solid #4CAF50";
-            resText.style.color = "#4CAF50";
-        }
+        if(diferencia > 0) { resText.innerHTML = `SOBRA DINERO: +$${diferencia.toLocaleString('es-CL')}`; resBox.style.border = "3px solid #2196F3"; resText.style.color = "#2196F3"; } 
+        else if (diferencia < 0) { resText.innerHTML = `FALTA DINERO: $${diferencia.toLocaleString('es-CL')}`; resBox.style.border = "3px solid var(--shell-red)"; resText.style.color = "var(--shell-red)"; } 
+        else { resText.innerHTML = `CUADRADO PERFECTAMENTE ($0)`; resBox.style.border = "3px solid #4CAF50"; resText.style.color = "#4CAF50"; }
     }
 }
 
-function acceptCuadratura() {
+function previewCuadratura() {
     if(!tempCuadratura) return;
-    db.history.unshift(tempCuadratura); // Añade primero
-    db.deposits[tempCuadratura.worker] = 0; // Reinicia depósito
-    saveDB();
+    const fechaStr = new Date().toLocaleString('es-CL');
+    let difTxt = tempCuadratura.diferencia === 0 ? "CUADRADO ($0)" : (tempCuadratura.diferencia > 0 ? `SOBRA +$${tempCuadratura.diferencia.toLocaleString('es-CL')}` : `FALTA -$${Math.abs(tempCuadratura.diferencia).toLocaleString('es-CL')}`);
+    
+    const ticketHTML = `
+        <div class="ticket-container">
+            <div class="ticket-header">SHELL POS<br>CIERRE DE TURNO</div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-row"><span>Fecha:</span><span>${fechaStr}</span></div>
+            <div class="ticket-row"><span>Trabajador:</span><span>${tempCuadratura.worker}</span></div>
+            <div class="ticket-row"><span>Turno:</span><span>${tempCuadratura.turno}</span></div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-row"><span>Ventas Turno:</span><span>$${tempCuadratura.ventas.toLocaleString('es-CL')}</span></div>
+            <div class="ticket-row"><span>Total Ingresado:</span><span>$${tempCuadratura.ingresado.toLocaleString('es-CL')}</span></div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-row" style="font-weight:bold; font-size: 16px;"><span>RESULTADO:</span><span>${difTxt}</span></div>
+            <div class="ticket-divider"></div>
+            <div class="ticket-firma">Firma Trabajador</div>
+        </div>
+    `;
 
-    document.querySelectorAll('.cuadratura-inputs input').forEach(inp => inp.value = '');
-    document.getElementById('cuad-resultado').classList.add('hidden');
-    tempCuadratura = null;
+    pendingTransaction = { type: 'cuadratura', data: tempCuadratura, html: ticketHTML };
+    viewBeforePrint = 'view-cuadratura';
+
+    document.getElementById('receipt-preview-container').innerHTML = ticketHTML;
+    navTo('view-print-preview');
+}
+
+// Confirmar Guardado e Imprimir
+function confirmAndPrint() {
+    if(!pendingTransaction) return;
+
+    if(pendingTransaction.type === 'deposit') {
+        db.deposits[pendingTransaction.worker] = (db.deposits[pendingTransaction.worker] || 0) + pendingTransaction.amount;
+        saveDB();
+        document.querySelectorAll('.den-item input').forEach(inp => inp.value = '');
+        document.getElementById('dep-total').innerText = '0';
+    } 
+    else if (pendingTransaction.type === 'cuadratura') {
+        db.history.unshift(pendingTransaction.data); 
+        db.deposits[pendingTransaction.data.worker] = 0; 
+        saveDB();
+        document.querySelectorAll('.cuadratura-inputs input').forEach(inp => inp.value = '');
+        document.getElementById('cuad-resultado').classList.add('hidden');
+        tempCuadratura = null;
+    }
+
+    // Inyectar el recibo en el contenedor oculto de impresión
+    const printArea = document.getElementById('print-area');
+    printArea.innerHTML = `<div class="receipt-paper">${pendingTransaction.html}</div>`;
+    
+    // Disparar diálogo del sistema operativo
+    window.print();
+    
+    // Limpiar variables de seguridad y volver al menú principal
+    printArea.innerHTML = '';
+    pendingTransaction = null;
     navTo('view-menu');
 }
 
-// --- ADMINISTRADOR ---
-function checkAdmin() {
-    if(document.getElementById('admin-pass').value === 'Shell2026') {
-        navTo('view-admin-menu');
-    } else {
-        alert("Contraseña incorrecta.");
-    }
+// Botón "Cancelar" en la vista previa
+function cancelTransaction() {
+    // Aborta la transacción sin afectar la base de datos
+    pendingTransaction = null;
+    // Vuelve a la pantalla anterior conservando los números que el usuario escribió
+    navTo(viewBeforePrint);
 }
+
+// --- ADMINISTRADOR ---
+function checkAdmin() { if(document.getElementById('admin-pass').value === 'Shell2026') { navTo('view-admin-menu'); } else { alert("Contraseña incorrecta."); } }
 
 function addWorker() {
     const nameInput = document.getElementById('new-worker-name');
     let name = nameInput.value.trim().toUpperCase();
-    
     if(name === "") return;
-    if(db.workers.includes(name)) {
-        alert("El trabajador ya existe.");
-        return;
-    }
-
-    db.workers.push(name);
-    db.deposits[name] = 0;
-    saveDB();
-    nameInput.value = '';
-    alert("Trabajador agregado correctamente.");
-    navTo('view-admin-menu');
+    if(db.workers.includes(name)) { alert("El trabajador ya existe."); return; }
+    db.workers.push(name); db.deposits[name] = 0; saveDB();
+    nameInput.value = ''; alert("Trabajador agregado correctamente."); navTo('view-admin-menu');
 }
 
-// Validador de RUT Chileno
 function validarRUT(rutCompleto) {
     if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rutCompleto)) return false;
-    let tmp = rutCompleto.split('-');
-    let digv = tmp[1].toLowerCase();
-    let rut = tmp[0];
-    let M=0, S=1;
+    let tmp = rutCompleto.split('-'), digv = tmp[1].toLowerCase(), rut = tmp[0], M=0, S=1;
     for(;rut;rut=Math.floor(rut/10)) S=(S+rut%10*(9-M++%6))%11;
     return (S?S-1:'k') == digv;
 }
 
 function removeWorker() {
-    const worker = document.getElementById('delete-worker-select').value;
-    const rut = document.getElementById('delete-rut').value.trim();
-    const pass = document.getElementById('delete-pass').value;
-
+    const worker = document.getElementById('delete-worker-select').value, rut = document.getElementById('delete-rut').value.trim(), pass = document.getElementById('delete-pass').value;
     if(!worker) return;
-    
-    if(!validarRUT(rut)) {
-        alert("El RUT ingresado no es válido. Formato requerido: 12345678-9");
-        return;
-    }
-
-    if(pass !== 'Shell2026') {
-        alert("Clave de administrador incorrecta.");
-        return;
-    }
-
-    db.workers = db.workers.filter(w => w !== worker);
-    delete db.deposits[worker];
-    saveDB();
-    
-    document.getElementById('delete-rut').value = '';
-    document.getElementById('delete-pass').value = '';
-    alert(`El trabajador ${worker} ha sido eliminado permanentemente.`);
-    navTo('view-admin-menu');
+    if(!validarRUT(rut)) { alert("El RUT ingresado no es válido. Formato requerido: 12345678-9"); return; }
+    if(pass !== 'Shell2026') { alert("Clave de administrador incorrecta."); return; }
+    db.workers = db.workers.filter(w => w !== worker); delete db.deposits[worker]; saveDB();
+    document.getElementById('delete-rut').value = ''; document.getElementById('delete-pass').value = '';
+    alert(`Trabajador eliminado.`); navTo('view-admin-menu');
 }
 
 function renderHistory() {
-    const container = document.getElementById('history-container');
-    container.innerHTML = '';
-
-    const filterWorker = document.getElementById('filter-worker').value;
-    const filterDate = document.getElementById('filter-date').value; 
-
-    // Ya están ordenados por defecto por el unshift, pero aseguramos
+    const container = document.getElementById('history-container'); container.innerHTML = '';
+    const filterWorker = document.getElementById('filter-worker').value, filterDate = document.getElementById('filter-date').value; 
     let filtered = [...db.history];
-
-    if(filterWorker !== 'ALL') {
-        filtered = filtered.filter(h => h.worker === filterWorker);
-    }
-
-    if(filterDate) {
-        const partes = filterDate.split('-');
-        const formattedFilter = `${partes[2]}-${partes[1]}-${partes[0]}`;
-        filtered = filtered.filter(h => h.date === formattedFilter);
-    }
-
-    if(filtered.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted); margin-top:10px;">No hay registros para este filtro.</p>';
-        return;
-    }
-
+    if(filterWorker !== 'ALL') filtered = filtered.filter(h => h.worker === filterWorker);
+    if(filterDate) { const partes = filterDate.split('-'); filtered = filtered.filter(h => h.date === `${partes[2]}-${partes[1]}-${partes[0]}`); }
+    
+    if(filtered.length === 0) { container.innerHTML = '<p style="color:var(--text-muted); margin-top:10px;">No hay registros.</p>'; return; }
     filtered.forEach(h => {
-        let borderClass = 'hist-perfect';
-        let resText = '$0';
+        let borderClass = 'hist-perfect', resText = '$0';
         if(h.diferencia > 0) { borderClass = 'hist-sobra'; resText = `+$${h.diferencia.toLocaleString('es-CL')}`; }
         else if (h.diferencia < 0) { borderClass = 'hist-falta'; resText = `-$${Math.abs(h.diferencia).toLocaleString('es-CL')}`; }
-
         container.innerHTML += `
             <div class="history-card ${borderClass}">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <strong>${h.date} - ${h.worker}</strong>
-                    <span>Turno: ${h.turno}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span>Ventas: $${h.ventas.toLocaleString('es-CL')}</span>
-                    <strong>Dif: ${resText}</strong>
-                </div>
-            </div>
-        `;
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><strong>${h.date} - ${h.worker}</strong><span>Turno: ${h.turno}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Ventas: $${h.ventas.toLocaleString('es-CL')}</span><strong>Dif: ${resText}</strong></div>
+            </div>`;
     });
+}
+
+function exportarExcel() {
+    if(db.history.length === 0) { alert("No hay registros en el historial para exportar."); return; }
+    let csv = "Fecha;Trabajador;Turno;Ventas del Turno;Monto Ingresado;Diferencia\n";
+    db.history.forEach(h => { csv += `${h.date};${h.worker};${h.turno};${h.ventas};${h.ingresado};${h.diferencia}\n`; });
+    
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `Reporte_Shell_${new Date().toLocaleDateString('es-CL').replaceAll('-', '_')}.csv`);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }

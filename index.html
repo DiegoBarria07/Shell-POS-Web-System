@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shell POS - Gestión de Caja</title>
+
+    <!-- CONEXIÓN PWA Y LOGO DE LA APP -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="https://e7.pngegg.com/pngimages/905/156/png-clipart-royal-dutch-shell-downtown-shell-business-organization-petroleum-business-angle-white.png">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Barra superior con Logo -->
     <header class="topbar">
         <div class="logo">
             <img src="https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png" alt="Shell Logo" class="logo-img" id="logo-shell">
@@ -55,7 +60,7 @@
             
             <div class="btn-row">
                 <button class="btn-back" onclick="navTo('view-menu')">Volver</button>
-                <button class="btn-save" onclick="saveDeposit()">Guardar Depósito</button>
+                <button class="btn-save" onclick="previewDeposit()">Siguiente (Revisar)</button>
             </div>
         </section>
 
@@ -89,7 +94,7 @@
 
             <div id="cuad-resultado" class="resultado-box hidden">
                 <h3 id="res-texto"></h3>
-                <button id="btn-aceptar-cuad" class="btn-save hidden" onclick="acceptCuadratura()" style="margin-top: 15px;">Aceptar Cuadratura (Cerrar Turno)</button>
+                <button id="btn-aceptar-cuad" class="btn-save hidden" onclick="previewCuadratura()" style="margin-top: 15px;">Aceptar Cuadratura (Cerrar Turno)</button>
             </div>
 
             <div class="btn-row" style="margin-top: 15px;">
@@ -97,7 +102,23 @@
             </div>
         </section>
 
-        <!-- VISTA 4: LOGIN ADMIN -->
+        <!-- VISTA 4: VISTA PREVIA DEL COMPROBANTE (NUEVA SEGURIDAD) -->
+        <section id="view-print-preview" class="view">
+            <h2>Vista Previa de Impresión</h2>
+            <p style="text-align: center; color: var(--shell-red); font-weight: bold; margin-bottom: 20px;">
+                ⚠️ El registro no se guardará en el sistema hasta que usted confirme.
+            </p>
+            
+            <!-- Aquí se inyecta visualmente el papelito -->
+            <div id="receipt-preview-container" class="receipt-paper"></div>
+
+            <div class="btn-row" style="margin-top: 30px;">
+                <button class="btn-back" onclick="cancelTransaction()">❌ Cancelar / Corregir</button>
+                <button class="btn-save" onclick="confirmAndPrint()">🖨️ Confirmar e Imprimir</button>
+            </div>
+        </section>
+
+        <!-- VISTA 5: LOGIN ADMIN -->
         <section id="view-login" class="view">
             <h2>Acceso Administrador</h2>
             <p>Ingrese la clave de seguridad para continuar.</p>
@@ -108,19 +129,18 @@
             </div>
         </section>
 
-        <!-- VISTA 5: MENU ADMIN (Rediseño) -->
+        <!-- VISTA 6: MENU ADMIN -->
         <section id="view-admin-menu" class="view">
             <h2>Panel de Administración</h2>
             <div class="menu-grid">
                 <button class="btn-main" onclick="navTo('view-admin-add')">Agregar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-delete')">Eliminar Trabajador</button>
-                <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial</button>
+                <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial y Reportes</button>
                 <button class="btn-back" onclick="navTo('view-menu')" style="margin-top: 20px;">Salir del Panel</button>
             </div>
         </section>
 
         <!-- SUBVISTAS ADMIN -->
-        <!-- Agregar -->
         <section id="view-admin-add" class="view">
             <h2>Agregar Trabajador</h2>
             <div class="form-group">
@@ -133,7 +153,6 @@
             </div>
         </section>
 
-        <!-- Eliminar (Con seguridad RUT) -->
         <section id="view-admin-delete" class="view">
             <h2>Eliminar Trabajador</h2>
             <div class="form-group">
@@ -154,7 +173,6 @@
             </div>
         </section>
 
-        <!-- Historial -->
         <section id="view-admin-history" class="view">
             <h2>Historial de Cuadraturas</h2>
             <div class="filters">
@@ -163,13 +181,21 @@
                 </select>
                 <input type="date" id="filter-date" onchange="renderHistory()">
             </div>
+            
+            <button onclick="exportarExcel()" style="background-color: #107c41; color: white; border: none; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-weight: bold; width: 100%; cursor: pointer;">
+                📥 Descargar Reporte Mensual (Excel)
+            </button>
+
             <div class="history-container" id="history-container"></div>
             <div class="btn-row" style="margin-top: 20px;">
                 <button class="btn-back" onclick="navTo('view-admin-menu')">Volver</button>
             </div>
         </section>
-
     </main>
+
+    <!-- ZONA EXCLUSIVA PARA LA IMPRESORA REAL -->
+    <div id="print-area"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
