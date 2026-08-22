@@ -2,14 +2,20 @@
   "name": "Shell POS - Gestión de Caja",
   "short_name": "Shell POS",
   "description": "Sistema de Punto de Venta y Cuadratura",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#121212",
   "icons": [
     {
-      "src": "https://e7.pngegg.com/pngimages/905/156/png-clipart-royal-dutch-shell-downtown-shell-business-organization-petroleum-business-angle-white.png",
-      "sizes": "192x192 512x512",
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

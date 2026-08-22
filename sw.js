@@ -1,5 +1,27 @@
-// Este es el Service Worker básico para permitir la instalación de la PWA
-self.addEventListener('fetch', function(event) {
-    // Por ahora lo dejamos vacío, solo lo necesitamos para engañar al navegador
-    // y que active el botón de "Instalar App"
+const CACHE_NAME = 'shell-pos-v2';
+const urlsToCache = [
+    './',
+    './index.html',
+    './style.css',
+    './script.js',
+    './logo.png'
+];
+
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+        .then(cache => {
+            return cache.addAll(urlsToCache);
+        })
+    );
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request)
+        .then(response => {
+            // Devuelve el archivo desde la caché, o lo busca en internet si no está
+            return response || fetch(event.request);
+        })
+    );
 });
