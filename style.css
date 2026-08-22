@@ -7,7 +7,7 @@
     --shell-red: #da291c;
     --shell-yellow: #fbc02d;
     --btn-hover-red: #b92015;
-    --watermark-opacity: 0.05;
+    --watermark-opacity: 0.04;
 }
 
 [data-theme="dark"] {
@@ -32,12 +32,10 @@ body::before {
     width: 60%; height: 60%; background-image: url('https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png');
     background-repeat: no-repeat; background-position: center; background-size: contain;
     opacity: var(--watermark-opacity); z-index: -1; pointer-events: none;
-    filter: grayscale(100%);
 }
 
-[data-theme="dark"] body::before,
-[data-theme="dark"] .logo-img {
-    filter: grayscale(100%) invert(1) brightness(200%);
+[data-theme="dark"] body::before {
+    filter: grayscale(80%); /* Tonifica la marca de agua oscura sin destruirla */
 }
 
 .topbar { background-color: var(--bg-card); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-bottom: 3px solid var(--shell-yellow); }

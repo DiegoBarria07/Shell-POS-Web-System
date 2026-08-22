@@ -4,8 +4,8 @@
   "description": "Sistema de Punto de Venta y Cuadratura",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#121212",
+  "background_color": "#e8eaed",
+  "theme_color": "#da291c",
   "icons": [
     {
       "src": "logo.png",

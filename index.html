@@ -5,19 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shell POS - Gestión de Caja</title>
     
-    <!-- CONEXIÓN PWA Y LOGO DE LA APP (Versionado para limpiar caché) -->
-    <link rel="icon" href="logo.png?v=2" type="image/png">
-    <link rel="apple-touch-icon" href="logo.png?v=2">
-    <link rel="manifest" href="manifest.json?v=2">
-    <meta name="theme-color" content="#121212">
+    <!-- CONEXIÓN PWA (Versionado V3 para limpieza de caché) -->
+    <link rel="icon" href="logo.png?v=3" type="image/png">
+    <link rel="apple-touch-icon" href="logo.png?v=3">
+    <link rel="manifest" href="manifest.json?v=3">
+    <meta name="theme-color" content="#da291c">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
     <header class="topbar">
         <div class="logo">
-            <!-- Logo principal de la barra (el corporativo de Teka) -->
             <img src="https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png" alt="Shell Logo" class="logo-img" id="logo-shell">
         </div>
         <button id="theme-toggle" class="btn-icon" title="Cambiar Tema">
@@ -28,7 +27,6 @@
 
     <main id="app-container">
         
-        <!-- VISTA 1: MENÚ PRINCIPAL -->
         <section id="view-menu" class="view active">
             <h2>Seleccione una operación</h2>
             <div class="menu-grid">
@@ -38,7 +36,6 @@
             </div>
         </section>
 
-        <!-- VISTA 2: DEPOSITAR -->
         <section id="view-deposit" class="view">
             <h2>Depositar Dinero</h2>
             <div class="form-group">
@@ -66,7 +63,6 @@
             </div>
         </section>
 
-        <!-- VISTA 3: CUADRATURA -->
         <section id="view-cuadratura" class="view">
             <h2>Hacer Cuadratura</h2>
             <div class="form-group">
@@ -104,7 +100,6 @@
             </div>
         </section>
 
-        <!-- VISTA 4: VISTA PREVIA DEL COMPROBANTE -->
         <section id="view-print-preview" class="view">
             <h2>Vista Previa de Impresión</h2>
             <p style="text-align: center; color: var(--shell-red); font-weight: bold; margin-bottom: 20px;">
@@ -119,7 +114,6 @@
             </div>
         </section>
 
-        <!-- VISTA 5: LOGIN ADMIN -->
         <section id="view-login" class="view">
             <h2>Acceso Administrador</h2>
             <p>Ingrese la clave de seguridad para continuar.</p>
@@ -130,7 +124,6 @@
             </div>
         </section>
 
-        <!-- VISTA 6: MENU ADMIN (Con Botón de Instalación) -->
         <section id="view-admin-menu" class="view">
             <h2>Panel de Administración</h2>
             <div class="menu-grid">
@@ -138,15 +131,13 @@
                 <button class="btn-main" onclick="navTo('view-admin-delete')">Eliminar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial y Reportes</button>
                 
-                <!-- Botón de instalación (oculto por defecto) -->
-                <!-- Botón de instalación (VISIBLE POR DEFECTO en el navegador) -->
+                <!-- Botón de instalación visible por defecto en web -->
                 <button id="btn-install-app" class="btn-main" onclick="installApp()" style="border-color: #4CAF50; color: var(--text-main);">Descargar / Instalar Aplicación</button>
                 
                 <button class="btn-back" onclick="navTo('view-menu')" style="margin-top: 20px;">Salir del Panel</button>
             </div>
         </section>
 
-        <!-- SUBVISTAS ADMIN -->
         <section id="view-admin-add" class="view">
             <h2>Agregar Trabajador</h2>
             <div class="form-group">
@@ -200,6 +191,6 @@
     </main>
 
     <div id="print-area"></div>
-    <script src="script.js"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>

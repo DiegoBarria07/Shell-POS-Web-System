@@ -7,25 +7,20 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 1. Escuchar el evento de instalación si el navegador lo permite
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e; // Guardamos el evento para usarlo en el botón
+    deferredPrompt = e;
 });
 
-// 2. Ocultar el botón SOLAMENTE si estamos dentro de la App instalada (Standalone)
+// Ocultar botón si ya se está usando la app instalada
 document.addEventListener('DOMContentLoaded', () => {
     const installBtn = document.getElementById('btn-install-app');
-    
-    // Detectar si es la PWA instalada
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
         if (installBtn) installBtn.style.display = 'none';
     }
 });
 
-// 3. Función al hacer clic en el botón
 function installApp() {
-    // Si el navegador nos dio el evento automático, lo usamos
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
@@ -35,8 +30,7 @@ function installApp() {
             deferredPrompt = null;
         });
     } else {
-        // PLAN B: Si el navegador bloqueó el popup automático (ej. Brave o Chrome estricto)
-        alert("Tu navegador bloquea las descargas automáticas o la app ya está instalada en tu sistema.\n\nPara instalar manualmente: Busca el ícono de una pantalla con una flechita hacia abajo en la barra de direcciones de tu navegador (arriba a la derecha) o en el menú de opciones.");
+        alert("Tu navegador bloquea los avisos automáticos o la app ya está instalada.\n\nPara instalar manualmente: Busca el ícono de descarga o 'Instalar App' en la barra de direcciones de tu navegador (arriba).");
     }
 }
 

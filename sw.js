@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shell-pos-v2';
+const CACHE_NAME = 'shell-pos-v3';
 const urlsToCache = [
     './',
     './index.html',
