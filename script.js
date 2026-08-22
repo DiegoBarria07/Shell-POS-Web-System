@@ -1,14 +1,53 @@
-// --- REGISTRO DE LA PWA (Para que se pueda instalar como App) ---
+// --- REGISTRO DE LA PWA E INSTALACIÓN INTELIGENTE ---
+let deferredPrompt;
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(() => {
-        console.log("Service Worker Registrado. ¡App lista para instalar!");
+        console.log("Service Worker Registrado.");
     });
 }
 
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn && !window.matchMedia('(display-mode: standalone)').matches && !window.navigator.standalone) {
+        installBtn.classList.remove('hidden');
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const installBtn = document.getElementById('btn-install-app');
+    if (installBtn) installBtn.classList.add('hidden');
+});
+
+function installApp() {
+    if (!deferredPrompt) {
+        alert("La aplicación ya está instalada o tu navegador no lo permite.");
+        return;
+    }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            document.getElementById('btn-install-app').classList.add('hidden');
+        }
+        deferredPrompt = null;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const installBtn = document.getElementById('btn-install-app');
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        if (installBtn) installBtn.classList.add('hidden');
+    }
+});
+
+// --- BASE DE DATOS Y NAVEGACIÓN ---
 let db = JSON.parse(localStorage.getItem('shellData')) || { workers: [], deposits: {}, history: [] };
 function saveDB() { localStorage.setItem('shellData', JSON.stringify(db)); }
 
-// --- NAVEGACIÓN ---
 function navTo(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
@@ -69,11 +108,10 @@ function updateWorkerSelects() {
 }
 function getVal(id) { let val = document.getElementById(id).value; return val === "" ? 0 : parseInt(val); }
 
-// --- LÓGICA DE TRANSACCIONES PENDIENTES Y SEGURIDAD ---
+// --- LÓGICA DE TRANSACCIONES PENDIENTES ---
 let pendingTransaction = null;
 let viewBeforePrint = '';
 
-// Depósitos
 function calcDeposit() {
     let total = getVal('b20000')*20000 + getVal('b10000')*10000 + getVal('b5000')*5000 + getVal('b2000')*2000 + getVal('b1000')*1000 + getVal('b500')*500 + getVal('b100')*100 + getVal('b50')*50 + getVal('b10')*10;
     document.getElementById('dep-total').innerText = total.toLocaleString('es-CL');
@@ -104,12 +142,10 @@ function previewDeposit() {
 
     pendingTransaction = { type: 'deposit', worker: worker, amount: amount, html: ticketHTML };
     viewBeforePrint = 'view-deposit';
-    
     document.getElementById('receipt-preview-container').innerHTML = ticketHTML;
     navTo('view-print-preview');
 }
 
-// Cuadraturas
 let tempCuadratura = null;
 
 function checkCurrentDeposit() {
@@ -169,12 +205,10 @@ function previewCuadratura() {
 
     pendingTransaction = { type: 'cuadratura', data: tempCuadratura, html: ticketHTML };
     viewBeforePrint = 'view-cuadratura';
-
     document.getElementById('receipt-preview-container').innerHTML = ticketHTML;
     navTo('view-print-preview');
 }
 
-// Confirmar Guardado e Imprimir
 function confirmAndPrint() {
     if(!pendingTransaction) return;
 
@@ -193,24 +227,16 @@ function confirmAndPrint() {
         tempCuadratura = null;
     }
 
-    // Inyectar el recibo en el contenedor oculto de impresión
     const printArea = document.getElementById('print-area');
     printArea.innerHTML = `<div class="receipt-paper">${pendingTransaction.html}</div>`;
-    
-    // Disparar diálogo del sistema operativo
     window.print();
-    
-    // Limpiar variables de seguridad y volver al menú principal
     printArea.innerHTML = '';
     pendingTransaction = null;
     navTo('view-menu');
 }
 
-// Botón "Cancelar" en la vista previa
 function cancelTransaction() {
-    // Aborta la transacción sin afectar la base de datos
     pendingTransaction = null;
-    // Vuelve a la pantalla anterior conservando los números que el usuario escribió
     navTo(viewBeforePrint);
 }
 

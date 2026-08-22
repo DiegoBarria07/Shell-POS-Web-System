@@ -32,9 +32,13 @@ body::before {
     width: 60%; height: 60%; background-image: url('https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png');
     background-repeat: no-repeat; background-position: center; background-size: contain;
     opacity: var(--watermark-opacity); z-index: -1; pointer-events: none;
+    filter: grayscale(100%);
 }
 
-[data-theme="dark"] body::before { filter: grayscale(100%) brightness(200%); }
+[data-theme="dark"] body::before,
+[data-theme="dark"] .logo-img {
+    filter: grayscale(100%) invert(1) brightness(200%);
+}
 
 .topbar { background-color: var(--bg-card); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-bottom: 3px solid var(--shell-yellow); }
 .logo-img { height: 40px; width: auto; }
@@ -81,11 +85,8 @@ input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
 .info-box { background: var(--bg-main); padding: 12px 15px; border-left: 4px solid var(--shell-yellow); margin-bottom: 20px; font-weight: 600; font-size: 0.95rem; border-radius: 0 6px 6px 0; }
 .resultado-box { margin-top: 20px; padding: 20px; border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 600; }
 
-/* ---------------------------------------------------- */
-/* DISEÑO DEL RECIBO (SE VE EN PANTALLA Y EN IMPRESIÓN) */
-/* ---------------------------------------------------- */
 .receipt-paper {
-    background-color: white !important; /* Siempre blanco para que parezca papel */
+    background-color: white !important;
     color: black !important;
     width: 100%;
     max-width: 320px;
@@ -103,7 +104,6 @@ input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
 
 #print-area { display: none; }
 
-/* REGLAS EXCLUSIVAS PARA LA IMPRESORA REAL */
 @media print {
     body * { visibility: hidden; }
     body { background-color: white !important; color: black !important; }
@@ -115,6 +115,5 @@ input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
         display: flex; justify-content: center;
     }
     
-    /* Al imprimir de verdad, le quitamos la sombra de "papel digital" para ahorrar tinta */
     .receipt-paper { box-shadow: none; border: none; padding: 0; margin: 0; }
 }

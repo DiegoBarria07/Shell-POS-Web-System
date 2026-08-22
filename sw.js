@@ -4,7 +4,8 @@ const urlsToCache = [
     './index.html',
     './style.css',
     './script.js',
-    './logo.png'
+    './logo.png',
+    './manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -20,7 +21,6 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
         .then(response => {
-            // Devuelve el archivo desde la caché, o lo busca en internet si no está
             return response || fetch(event.request);
         })
     );
