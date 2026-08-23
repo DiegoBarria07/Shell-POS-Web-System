@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shell POS - Gestión de Caja</title>
     
+    <!-- ÍCONOS Y PWA (Versión 9 - Release Candidate) -->
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png" type="image/png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png">
-    <link rel="manifest" href="manifest.json?v=8">
+    <link rel="manifest" href="manifest.json?v=9">
     <meta name="theme-color" content="#da291c">
-    <link rel="stylesheet" href="style.css?v=8">
+    
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -25,7 +27,7 @@
 
     <main id="app-container">
         
-        <!-- VISTA MENÚ (Botón Editar eliminado de aquí) -->
+        <!-- VISTA 1: MENÚ PRINCIPAL -->
         <section id="view-menu" class="view active">
             <h2>Seleccione una operación</h2>
             <div class="menu-grid">
@@ -35,7 +37,7 @@
             </div>
         </section>
 
-        <!-- VISTA DEPOSITAR -->
+        <!-- VISTA 2: DEPOSITAR DINERO -->
         <section id="view-deposit" class="view">
             <h2 id="title-deposit">Depositar Dinero</h2>
             
@@ -82,7 +84,7 @@
             </div>
         </section>
 
-        <!-- VISTAS EDITAR -->
+        <!-- VISTAS DE EDICIÓN DE DEPÓSITOS -->
         <section id="view-edit-rut" class="view">
             <h2>Editar Depósito</h2>
             <p style="margin-bottom: 20px; color: var(--text-muted);">Ingrese su RUT para buscar depósitos modificables del día.</p>
@@ -104,12 +106,10 @@
             </div>
         </section>
 
-        <!-- VISTA CUADRATURA (Con el botón de edición donde lo dibujaste) -->
-       <!-- VISTA CUADRATURA (Diseño MS Paint 3 Columnas) -->
+        <!-- VISTA 3: HACER CUADRATURA (Diseño MS Paint Profesional) -->
         <section id="view-cuadratura" class="view">
             <h2>Hacer Cuadratura</h2>
             
-            <!-- Fila 1: Trabajador, Turno, Fecha -->
             <div class="grid-3-col">
                 <div class="form-group">
                     <label>Trabajador:</label>
@@ -125,12 +125,10 @@
                 </div>
                 <div class="form-group">
                     <label>Fecha:</label>
-                    <!-- Agregamos el input de fecha que dibujaste -->
-                    <input type="date" id="cuad-date" onchange="calculateCuadratura()">
+                    <input type="date" id="cuad-date">
                 </div>
             </div>
 
-            <!-- Fila 2: La Información (Los 7 inputs en 3 columnas) -->
             <div class="grid-3-col">
                 <div class="form-group"><label>Ventas (Total):</label><input type="number" min="0" id="c-ventas" oninput="calculateCuadratura()"></div>
                 <div class="form-group"><label>Kerosene:</label><input type="number" min="0" id="c-kerosene" oninput="calculateCuadratura()"></div>
@@ -141,7 +139,6 @@
                 <div class="form-group"><label>Mi Piloto:</label><input type="number" min="0" id="c-piloto" oninput="calculateCuadratura()"></div>
             </div>
 
-            <!-- Fila 3: Resultados (Izquierda) y Aceptar (Derecha) -->
             <div class="grid-2-col">
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     <div class="info-box" style="margin-bottom: 0;">
@@ -163,7 +160,7 @@
             </div>
         </section>
 
-        <!-- VISTA PREVIA IMPRESIÓN -->
+        <!-- VISTA 4: VISTA PREVIA DE IMPRESIÓN -->
         <section id="view-print-preview" class="view">
             <h2>Vista Previa de Impresión</h2>
             <p style="text-align: center; color: var(--shell-red); font-weight: bold; margin-bottom: 20px;">AVISO: Revise el documento antes de confirmar.</p>
@@ -176,7 +173,7 @@
             </div>
         </section>
 
-        <!-- VISTAS ADMIN -->
+        <!-- VISTAS DE ADMINISTRACIÓN -->
         <section id="view-login" class="view">
             <h2>Acceso Administrador</h2>
             <p>Ingrese la clave de seguridad.</p>
@@ -190,7 +187,6 @@
         <section id="view-admin-menu" class="view">
             <h2>Panel de Administración</h2>
             <div class="menu-grid">
-                <!-- Nombre del botón limpiado -->
                 <button class="btn-main" onclick="navTo('view-admin-add')">Agregar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-delete')">Eliminar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial y Reportes</button>
@@ -225,7 +221,6 @@
             <div class="filters">
                 <select id="filter-worker" class="worker-select" onchange="renderHistory()"><option value="ALL">Todos</option></select>
                 <input type="date" id="filter-date" onchange="renderHistory()">
-                <!-- Input añadido para buscar por número de folio -->
                 <input type="text" id="filter-folio" placeholder="Buscar por número..." oninput="renderHistory()">
             </div>
             <button onclick="exportarExcel()" style="background-color: #107c41; color: white; border: none; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-weight: bold; width: 100%; cursor: pointer;">Descargar Excel</button>
@@ -235,7 +230,7 @@
         </section>
     </main>
 
-    <!-- MODAL PERSONALIZADO (Alertas y Vista de Tickets) -->
+    <!-- MODALES Y ALERTAS -->
     <div id="custom-alert" class="modal-overlay hidden">
         <div class="modal-content" id="modal-content-box">
             <div id="alert-message"></div>
@@ -243,7 +238,9 @@
         </div>
     </div>
 
+    <!-- ÁREA DE IMPRESIÓN -->
     <div id="print-area"></div>
-    <script src="script.js?v=8"></script>
+    
+    <script src="script.js?v=9"></script>
 </body>
 </html>
