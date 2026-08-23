@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shell POS - Gestión de Caja</title>
     
-    <!-- ÍCONOS CUADRADOS PERFECTOS DESDE SERVIDOR EXTERNO -->
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png" type="image/png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png">
-    <link rel="manifest" href="manifest.json?v=4">
+    <link rel="manifest" href="manifest.json?v=5">
     <meta name="theme-color" content="#da291c">
 
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
     <header class="topbar">
         <div class="logo">
-            <!-- En la barra superior dejamos el logo alargado porque se ve más elegante -->
             <img src="https://logo-teka.com/wp-content/uploads/2025/07/shell-logo.png" alt="Shell Logo" class="logo-img" id="logo-shell">
         </div>
         <button id="theme-toggle" class="btn-icon" title="Cambiar Tema">
@@ -132,7 +130,6 @@
                 <button class="btn-main" onclick="navTo('view-admin-delete')">Eliminar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial y Reportes</button>
                 
-                <!-- Botón de instalación -->
                 <button id="btn-install-app" class="btn-main" onclick="installApp()" style="border-color: #4CAF50; color: var(--text-main);">Descargar / Instalar Aplicación</button>
                 
                 <button class="btn-back" onclick="navTo('view-menu')" style="margin-top: 20px;">Salir del Panel</button>
@@ -191,7 +188,15 @@
         </section>
     </main>
 
+    <!-- EL NUEVO MODAL DE NOTIFICACIONES -->
+    <div id="custom-alert" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p id="alert-message"></p>
+            <button class="btn-save" onclick="closeAlert()" style="width: 100%; margin: 0;">Aceptar</button>
+        </div>
+    </div>
+
     <div id="print-area"></div>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>

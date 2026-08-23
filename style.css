@@ -83,6 +83,36 @@ input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
 .info-box { background: var(--bg-main); padding: 12px 15px; border-left: 4px solid var(--shell-yellow); margin-bottom: 20px; font-weight: 600; font-size: 0.95rem; border-radius: 0 6px 6px 0; }
 .resultado-box { margin-top: 20px; padding: 20px; border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 600; }
 
+/* --- DISEÑO DEL NUEVO MODAL (CUSTOM ALERT) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
+}
+.modal-content {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: popIn 0.3s ease-out;
+    border: 1px solid var(--border);
+}
+.modal-content p {
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+@keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 .receipt-paper {
     background-color: white !important;
     color: black !important;
@@ -106,12 +136,12 @@ input:focus, select:focus { outline: none; border-color: var(--shell-yellow); }
     body * { visibility: hidden; }
     body { background-color: white !important; color: black !important; }
     body::before { display: none; } 
+    #custom-alert { display: none !important; }
     
     #print-area, #print-area * { visibility: visible; }
     #print-area {
         position: absolute; left: 0; top: 0; width: 100%;
         display: flex; justify-content: center;
     }
-    
     .receipt-paper { box-shadow: none; border: none; padding: 0; margin: 0; }
 }

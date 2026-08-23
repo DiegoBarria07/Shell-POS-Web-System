@@ -1,3 +1,13 @@
+// --- SISTEMA DE ALERTA PERSONALIZADO ---
+function showAlert(msg) {
+    document.getElementById('alert-message').innerHTML = msg.replace(/\n/g, '<br><br>');
+    document.getElementById('custom-alert').classList.remove('hidden');
+}
+
+function closeAlert() {
+    document.getElementById('custom-alert').classList.add('hidden');
+}
+
 // --- REGISTRO DE LA PWA E INSTALACIÓN INTELIGENTE ---
 let deferredPrompt;
 
@@ -29,7 +39,7 @@ function installApp() {
             deferredPrompt = null;
         });
     } else {
-        alert("Tu navegador bloquea los avisos automáticos o la app ya está instalada.\n\nPara instalar manualmente: Busca el ícono de descarga o 'Instalar App' en la barra de direcciones de tu navegador (arriba).");
+        showAlert("Tu navegador bloquea los avisos automáticos o la app ya está instalada.\nPara instalar manualmente: Busca el ícono de descarga o 'Instalar App' en la barra de direcciones de tu navegador (arriba).");
     }
 }
 
@@ -44,8 +54,9 @@ function navTo(viewId) {
     if(viewId === 'view-deposit' || viewId === 'view-cuadratura' || viewId === 'view-admin-delete') {
         updateWorkerSelects();
         if(db.workers.length === 0 && viewId !== 'view-admin-delete') {
-            alert("No hay trabajadores creados. Vaya a 'Administrar'.");
+            showAlert("No hay trabajadores creados. Vaya a 'Administrar'.");
             navTo('view-menu');
+            return;
         }
     }
     if(viewId === 'view-cuadratura') { checkCurrentDeposit(); calculateCuadratura(); }
@@ -111,7 +122,7 @@ function previewDeposit() {
     const worker = document.getElementById('dep-worker').value;
     const amount = calcDeposit();
     if(!worker || amount === 0) {
-        alert("Ingrese un monto válido para depositar.");
+        showAlert("Ingrese un monto válido para depositar.");
         return;
     }
 
@@ -230,15 +241,23 @@ function cancelTransaction() {
 }
 
 // --- ADMINISTRADOR ---
-function checkAdmin() { if(document.getElementById('admin-pass').value === 'Shell2026') { navTo('view-admin-menu'); } else { alert("Contraseña incorrecta."); } }
+function checkAdmin() { 
+    if(document.getElementById('admin-pass').value === 'Shell2026') { 
+        navTo('view-admin-menu'); 
+    } else { 
+        showAlert("Contraseña incorrecta."); 
+    } 
+}
 
 function addWorker() {
     const nameInput = document.getElementById('new-worker-name');
     let name = nameInput.value.trim().toUpperCase();
     if(name === "") return;
-    if(db.workers.includes(name)) { alert("El trabajador ya existe."); return; }
+    if(db.workers.includes(name)) { showAlert("El trabajador ya existe."); return; }
     db.workers.push(name); db.deposits[name] = 0; saveDB();
-    nameInput.value = ''; alert("Trabajador agregado correctamente."); navTo('view-admin-menu');
+    nameInput.value = ''; 
+    showAlert("Trabajador agregado correctamente."); 
+    navTo('view-admin-menu');
 }
 
 function validarRUT(rutCompleto) {
@@ -251,11 +270,12 @@ function validarRUT(rutCompleto) {
 function removeWorker() {
     const worker = document.getElementById('delete-worker-select').value, rut = document.getElementById('delete-rut').value.trim(), pass = document.getElementById('delete-pass').value;
     if(!worker) return;
-    if(!validarRUT(rut)) { alert("El RUT ingresado no es válido. Formato requerido: 12345678-9"); return; }
-    if(pass !== 'Shell2026') { alert("Clave de administrador incorrecta."); return; }
+    if(!validarRUT(rut)) { showAlert("El RUT ingresado no es válido. Formato requerido: 12345678-9"); return; }
+    if(pass !== 'Shell2026') { showAlert("Clave de administrador incorrecta."); return; }
     db.workers = db.workers.filter(w => w !== worker); delete db.deposits[worker]; saveDB();
     document.getElementById('delete-rut').value = ''; document.getElementById('delete-pass').value = '';
-    alert(`Trabajador eliminado.`); navTo('view-admin-menu');
+    showAlert(`Trabajador eliminado.`); 
+    navTo('view-admin-menu');
 }
 
 function renderHistory() {
@@ -279,7 +299,7 @@ function renderHistory() {
 }
 
 function exportarExcel() {
-    if(db.history.length === 0) { alert("No hay registros en el historial para exportar."); return; }
+    if(db.history.length === 0) { showAlert("No hay registros en el historial para exportar."); return; }
     let csv = "Fecha;Trabajador;Turno;Ventas del Turno;Monto Ingresado;Diferencia\n";
     db.history.forEach(h => { csv += `${h.date};${h.worker};${h.turno};${h.ventas};${h.ingresado};${h.diferencia}\n`; });
     
