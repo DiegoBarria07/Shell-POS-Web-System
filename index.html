@@ -7,10 +7,9 @@
     
     <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png" type="image/png">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Shell_logo.svg/512px-Shell_logo.svg.png">
-    <link rel="manifest" href="manifest.json?v=5">
+    <link rel="manifest" href="manifest.json?v=8">
     <meta name="theme-color" content="#da291c">
-
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -26,6 +25,7 @@
 
     <main id="app-container">
         
+        <!-- VISTA MENÚ (Botón Editar eliminado de aquí) -->
         <section id="view-menu" class="view active">
             <h2>Seleccione una operación</h2>
             <div class="menu-grid">
@@ -35,11 +35,31 @@
             </div>
         </section>
 
+        <!-- VISTA DEPOSITAR -->
         <section id="view-deposit" class="view">
-            <h2>Depositar Dinero</h2>
-            <div class="form-group">
-                <label>Trabajador:</label>
-                <select class="worker-select" id="dep-worker"></select>
+            <h2 id="title-deposit">Depositar Dinero</h2>
+            
+            <div class="cuad-layout" style="margin-bottom: 20px;">
+                <div class="cuad-col">
+                    <div class="form-group">
+                        <label>Trabajador:</label>
+                        <select class="worker-select" id="dep-worker"></select>
+                    </div>
+                </div>
+                <div class="cuad-col" style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Turno:</label>
+                        <select id="dep-turno">
+                            <option value="1">Turno 1 (Día)</option>
+                            <option value="2">Turno 2 (Tarde)</option>
+                            <option value="3">Turno 3 (Noche)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Fecha:</label>
+                        <input type="date" id="dep-date">
+                    </div>
+                </div>
             </div>
             
             <div class="denominations-grid" id="deposit-grid">
@@ -54,7 +74,7 @@
                 <div class="den-item"><label>$10</label><input type="number" min="0" id="b10" oninput="calcDeposit()"></div>
             </div>
 
-            <h3 class="total-text">Total Depositado: $<span id="dep-total">0</span></h3>
+            <h3 class="total-text">Total: $<span id="dep-total">0</span></h3>
             
             <div class="btn-row">
                 <button class="btn-back" onclick="navTo('view-menu')">Volver</button>
@@ -62,36 +82,80 @@
             </div>
         </section>
 
+        <!-- VISTAS EDITAR -->
+        <section id="view-edit-rut" class="view">
+            <h2>Editar Depósito</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted);">Ingrese su RUT para buscar depósitos modificables del día.</p>
+            <div class="form-group">
+                <label>RUT del Trabajador:</label>
+                <input type="text" id="edit-rut" placeholder="Ej: 12345678-9">
+            </div>
+            <div class="btn-row">
+                <button class="btn-back" onclick="navTo('view-cuadratura')">Volver</button>
+                <button class="btn-save" style="background-color: #2196F3;" onclick="findDepositsByRut()">Buscar Depósitos</button>
+            </div>
+        </section>
+
+        <section id="view-edit-list" class="view">
+            <h2>Seleccione el Depósito a Editar</h2>
+            <div id="edit-list-container" class="menu-grid"></div>
+            <div class="btn-row" style="margin-top: 20px;">
+                <button class="btn-back" onclick="navTo('view-edit-rut')">Volver</button>
+            </div>
+        </section>
+
+        <!-- VISTA CUADRATURA (Con el botón de edición donde lo dibujaste) -->
+       <!-- VISTA CUADRATURA (Diseño MS Paint 3 Columnas) -->
         <section id="view-cuadratura" class="view">
             <h2>Hacer Cuadratura</h2>
-            <div class="form-group">
-                <label>Trabajador:</label>
-                <select class="worker-select" id="cuad-worker" onchange="checkCurrentDeposit()"></select>
-            </div>
-            <div class="form-group">
-                <label>Turno:</label>
-                <select id="cuad-turno">
-                    <option value="Día">Día</option>
-                    <option value="Tarde">Tarde</option>
-                    <option value="Noche">Noche</option>
-                </select>
-            </div>
-
-            <div class="info-box">
-                Dinero depositado: $<span id="cuad-deposito-actual">0</span>
-            </div>
-
-            <div class="cuadratura-inputs">
-                <div class="form-group"><label>1. Ventas Totales (Turno):</label><input type="number" min="0" id="c-ventas" oninput="calculateCuadratura()"></div>
-                <div class="form-group"><label>2. Transbank:</label><input type="number" min="0" id="c-transbank" oninput="calculateCuadratura()"></div>
-                <div class="form-group"><label>3. Shellcard:</label><input type="number" min="0" id="c-shellcard" oninput="calculateCuadratura()"></div>
-                <div class="form-group"><label>4. Aplicación:</label><input type="number" min="0" id="c-app" oninput="calculateCuadratura()"></div>
-                <div class="form-group"><label>5. Transferencias:</label><input type="number" min="0" id="c-transf" oninput="calculateCuadratura()"></div>
+            
+            <!-- Fila 1: Trabajador, Turno, Fecha -->
+            <div class="grid-3-col">
+                <div class="form-group">
+                    <label>Trabajador:</label>
+                    <select class="worker-select" id="cuad-worker" onchange="checkCurrentDeposit()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Turno:</label>
+                    <select id="cuad-turno">
+                        <option value="1">Turno 1 (Día)</option>
+                        <option value="2">Turno 2 (Tarde)</option>
+                        <option value="3">Turno 3 (Noche)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <!-- Agregamos el input de fecha que dibujaste -->
+                    <input type="date" id="cuad-date" onchange="calculateCuadratura()">
+                </div>
             </div>
 
-            <div id="cuad-resultado" class="resultado-box hidden">
-                <h3 id="res-texto"></h3>
-                <button id="btn-aceptar-cuad" class="btn-save hidden" onclick="previewCuadratura()" style="margin-top: 15px;">Aceptar Cuadratura (Cerrar Turno)</button>
+            <!-- Fila 2: La Información (Los 7 inputs en 3 columnas) -->
+            <div class="grid-3-col">
+                <div class="form-group"><label>Ventas (Total):</label><input type="number" min="0" id="c-ventas" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>Kerosene:</label><input type="number" min="0" id="c-kerosene" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>TransBank:</label><input type="number" min="0" id="c-transbank" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>Shellcard:</label><input type="number" min="0" id="c-shellcard" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>Transferencia:</label><input type="number" min="0" id="c-transf" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>Promo/Aceite:</label><input type="number" min="0" id="c-promo" oninput="calculateCuadratura()"></div>
+                <div class="form-group"><label>Mi Piloto:</label><input type="number" min="0" id="c-piloto" oninput="calculateCuadratura()"></div>
+            </div>
+
+            <!-- Fila 3: Resultados (Izquierda) y Aceptar (Derecha) -->
+            <div class="grid-2-col">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="info-box" style="margin-bottom: 0;">
+                        Total Depositado en Turno:<br> <strong style="font-size: 1.5rem;">$<span id="cuad-deposito-actual">0</span></strong>
+                    </div>
+                    <button class="btn-main" onclick="navTo('view-edit-rut')" style="border-color: #2196F3; width: 100%;">Editar Depósito</button>
+                </div>
+                
+                <div>
+                    <div id="cuad-resultado" class="resultado-box hidden">
+                        <h3 id="res-texto" style="margin-bottom: 15px;"></h3>
+                        <button id="btn-aceptar-cuad" class="btn-save hidden" onclick="previewCuadratura()" style="width: 100%;">Aceptar Cuadratura</button>
+                    </div>
+                </div>
             </div>
 
             <div class="btn-row" style="margin-top: 15px;">
@@ -99,11 +163,10 @@
             </div>
         </section>
 
+        <!-- VISTA PREVIA IMPRESIÓN -->
         <section id="view-print-preview" class="view">
             <h2>Vista Previa de Impresión</h2>
-            <p style="text-align: center; color: var(--shell-red); font-weight: bold; margin-bottom: 20px;">
-                AVISO: El registro no se guardará hasta que confirme la operación.
-            </p>
+            <p style="text-align: center; color: var(--shell-red); font-weight: bold; margin-bottom: 20px;">AVISO: Revise el documento antes de confirmar.</p>
             
             <div id="receipt-preview-container" class="receipt-paper"></div>
 
@@ -113,9 +176,10 @@
             </div>
         </section>
 
+        <!-- VISTAS ADMIN -->
         <section id="view-login" class="view">
             <h2>Acceso Administrador</h2>
-            <p>Ingrese la clave de seguridad para continuar.</p>
+            <p>Ingrese la clave de seguridad.</p>
             <input type="password" id="admin-pass" placeholder="Contraseña">
             <div class="btn-row">
                 <button class="btn-back" onclick="navTo('view-menu')">Volver</button>
@@ -126,22 +190,19 @@
         <section id="view-admin-menu" class="view">
             <h2>Panel de Administración</h2>
             <div class="menu-grid">
+                <!-- Nombre del botón limpiado -->
                 <button class="btn-main" onclick="navTo('view-admin-add')">Agregar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-delete')">Eliminar Trabajador</button>
                 <button class="btn-main" onclick="navTo('view-admin-history')">Ver Historial y Reportes</button>
-                
-                <button id="btn-install-app" class="btn-main" onclick="installApp()" style="border-color: #4CAF50; color: var(--text-main);">Descargar / Instalar Aplicación</button>
-                
+                <button id="btn-install-app" class="btn-main" onclick="installApp()" style="border-color: #4CAF50; color: var(--text-main);">Instalar Aplicación PWA</button>
                 <button class="btn-back" onclick="navTo('view-menu')" style="margin-top: 20px;">Salir del Panel</button>
             </div>
         </section>
 
         <section id="view-admin-add" class="view">
             <h2>Agregar Trabajador</h2>
-            <div class="form-group">
-                <label>Nombre del trabajador:</label>
-                <input type="text" id="new-worker-name" placeholder="Ej. Diego Barria">
-            </div>
+            <div class="form-group"><label>Nombre (Ej: DIEGO BARRIA):</label><input type="text" id="new-worker-name"></div>
+            <div class="form-group"><label>RUT (Sin puntos, con guion):</label><input type="text" id="new-worker-rut" placeholder="12345678-9"></div>
             <div class="btn-row">
                 <button class="btn-back" onclick="navTo('view-admin-menu')">Volver</button>
                 <button class="btn-save" onclick="addWorker()">Guardar</button>
@@ -150,53 +211,39 @@
 
         <section id="view-admin-delete" class="view">
             <h2>Eliminar Trabajador</h2>
-            <div class="form-group">
-                <label>Seleccione trabajador a eliminar:</label>
-                <select class="worker-select" id="delete-worker-select"></select>
-            </div>
-            <div class="form-group">
-                <label>RUT de Autorización (sin puntos, con guion):</label>
-                <input type="text" id="delete-rut" placeholder="Ej: 12345678-9">
-            </div>
-            <div class="form-group">
-                <label>Clave de Administrador:</label>
-                <input type="password" id="delete-pass" placeholder="Contraseña">
-            </div>
+            <div class="form-group"><label>Seleccione trabajador:</label><select class="worker-select" id="delete-worker-select"></select></div>
+            <div class="form-group"><label>RUT de Autorización (Admin):</label><input type="text" id="delete-rut" placeholder="Ej: 12345678-9"></div>
+            <div class="form-group"><label>Clave de Admin:</label><input type="password" id="delete-pass" placeholder="Contraseña"></div>
             <div class="btn-row">
                 <button class="btn-back" onclick="navTo('view-admin-menu')">Volver</button>
-                <button class="btn-delete-action btn-save" onclick="removeWorker()" style="background-color: var(--shell-red);">Eliminar Definitivamente</button>
+                <button class="btn-save" onclick="removeWorker()" style="background-color: var(--shell-red);">Eliminar</button>
             </div>
         </section>
 
         <section id="view-admin-history" class="view">
             <h2>Historial de Cuadraturas</h2>
             <div class="filters">
-                <select id="filter-worker" class="worker-select" onchange="renderHistory()">
-                    <option value="ALL">Todos</option>
-                </select>
+                <select id="filter-worker" class="worker-select" onchange="renderHistory()"><option value="ALL">Todos</option></select>
                 <input type="date" id="filter-date" onchange="renderHistory()">
+                <!-- Input añadido para buscar por número de folio -->
+                <input type="text" id="filter-folio" placeholder="Buscar por número..." oninput="renderHistory()">
             </div>
-            
-            <button onclick="exportarExcel()" style="background-color: #107c41; color: white; border: none; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-weight: bold; width: 100%; cursor: pointer;">
-                Descargar Reporte Mensual (Excel)
-            </button>
-
+            <button onclick="exportarExcel()" style="background-color: #107c41; color: white; border: none; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-weight: bold; width: 100%; cursor: pointer;">Descargar Excel</button>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Toque un registro para ver el ticket detallado.</p>
             <div class="history-container" id="history-container"></div>
-            <div class="btn-row" style="margin-top: 20px;">
-                <button class="btn-back" onclick="navTo('view-admin-menu')">Volver</button>
-            </div>
+            <div class="btn-row" style="margin-top: 20px;"><button class="btn-back" onclick="navTo('view-admin-menu')">Volver</button></div>
         </section>
     </main>
 
-    <!-- EL NUEVO MODAL DE NOTIFICACIONES -->
+    <!-- MODAL PERSONALIZADO (Alertas y Vista de Tickets) -->
     <div id="custom-alert" class="modal-overlay hidden">
-        <div class="modal-content">
-            <p id="alert-message"></p>
-            <button class="btn-save" onclick="closeAlert()" style="width: 100%; margin: 0;">Aceptar</button>
+        <div class="modal-content" id="modal-content-box">
+            <div id="alert-message"></div>
+            <button class="btn-save" onclick="closeAlert()" style="width: 100%; margin-top: 20px;">Aceptar</button>
         </div>
     </div>
 
     <div id="print-area"></div>
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>
